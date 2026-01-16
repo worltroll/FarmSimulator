@@ -9,13 +9,14 @@ class Game(arcade.View):
 
     def setup(self):
         self.hotbar = HotBar()
+        self.field = Field()
         self.background_color = arcade.color.TEA_GREEN
 
     def on_draw(self):
         self.clear()
 
-        self.hotbar.update()
         self.hotbar.draw()
+        self.field.draw()
 
     def on_key_press(self, symbol, modifiers):
         match symbol:

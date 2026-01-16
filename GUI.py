@@ -29,6 +29,6 @@ class Field(arcade.SpriteList):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        for i in range(4):
-            for j in range(7):
-                self.append(Cell('images/cell.png', 97 + 128 * j, 97 + 128 * (i + 2)))
+        for i in range(3):
+            for j in range(3):
+                self.append(Cell('images/cell.png', 153 + 128 * j, 97 + 128 * (i + 2)))
