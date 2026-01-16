@@ -1,13 +1,18 @@
 import arcade
-from base import Window
+from base import Window, StartView
 from game_base import Game
 
 
 def main():
     window = Window(562, 800, 'Симулятор фермы')
+
     game = Game()
     game.setup()
-    window.show_view(game)
+
+    start_view = StartView(game)
+    start_view.setup()
+
+    window.show_view(start_view)
     arcade.run()
 
 
