@@ -13,6 +13,8 @@ class StartView(arcade.View):
     TOMATO_COUNT = 10
     TOMATO_SPEED = 100
 
+    BUTTON_OFFSET = 10
+
     def __init__(self, game_view):
         super().__init__()
 
@@ -39,19 +41,22 @@ class StartView(arcade.View):
 
             self.tomatoes.append(tomato)
 
-        self.start_game_text = arcade.Text('Начать игру', self.window.width / 2, self.window.height / 2,
+        self.start_game_text = arcade.Text('Начать игру', self.window.width / 2, self.window.height / 8 * 4,
                                            batch=self.batch,
-                                           anchor_x='center', anchor_y='center', font_size=17, font_name='Press Start 2P')
+                                           anchor_x='center', anchor_y='center', font_size=17,
+                                           font_name='Press Start 2P')
         self.start_game_rect = arcade.rect.XYWH(self.window.width / 2,
                                                 self.window.height / 2,
                                                 300, 100)
         self.start_game_color = arcade.color.YELLOW_ORANGE
 
-        self.close_game_text = arcade.Text('Выйти', self.window.width / 2, self.window.height / 4,
+        self.close_game_text = arcade.Text('Выйти', self.window.width / 2,
+                                           self.window.height / 8 * 3 - self.BUTTON_OFFSET,
                                            batch=self.batch,
-                                           anchor_x='center', anchor_y='center', font_size=17, font_name='Press Start 2P')
+                                           anchor_x='center', anchor_y='center', font_size=17,
+                                           font_name='Press Start 2P')
         self.close_game_rect = arcade.rect.XYWH(self.window.width / 2,
-                                                self.window.height / 4,
+                                                self.window.height / 8 * 3 - self.BUTTON_OFFSET,
                                                 300, 100)
         self.close_game_color = arcade.color.YELLOW_ORANGE
 
@@ -93,7 +98,6 @@ class StartView(arcade.View):
         if self.close_game_rect.left <= x <= self.close_game_rect.right and \
                 self.close_game_rect.bottom <= y <= self.close_game_rect.top:
             self.window.close()
-
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
         if self.start_game_rect.left <= x <= self.start_game_rect.right and \
