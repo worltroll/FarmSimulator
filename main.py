@@ -1,11 +1,13 @@
 import arcade
 
+from db_manager import DBManager
 from base import Window, StartView
 from game_base import Game
 
 
 def main():
     window = Window(562, 800, 'Симулятор фермы')
+    db = DBManager()
 
     arcade.load_font('fonts/PressStart2P-Regular.ttf')
 
