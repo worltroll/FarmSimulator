@@ -2,10 +2,11 @@ import arcade
 
 
 class Cell(arcade.Sprite):
-    def __init__(self, path_or_texture, center_x, center_y, scale=1, **kwargs):
+    def __init__(self, path_or_texture, center_x, center_y, scale=1, item=None, **kwargs):
         super().__init__(path_or_texture=path_or_texture, scale=scale, center_x=center_x, center_y=center_y,
                          **kwargs)
         self.is_selected = False
+        self.item = item
 
 
 class HotBar(arcade.SpriteList):
