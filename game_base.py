@@ -14,10 +14,10 @@ class Game(arcade.View):
 
         self.hotbar = HotBar()
         self.field = Field()
-        self.exit_button = Button('images/button2.png', center_x=89, center_y=743, scale=0.5)
+        self.exit_button = Button('images/button_gray.png', center_x=89, center_y=743, scale=0.5)
         self.exit_text = arcade.Text('Назад', 89, 743, batch=self.batch, anchor_x='center', anchor_y='center',
                                      font_size=12, font_name='Press Start 2P')
-        self.shop_button = Button('images/button2.png', center_x=473, center_y=743, scale=0.5)
+        self.shop_button = Button('images/button_gray.png', center_x=473, center_y=743, scale=0.5)
         self.shop_text = arcade.Text('Магазин', 473, 743, batch=self.batch, anchor_x='center', anchor_y='center',
                                      font_size=12, font_name='Press Start 2P')
         self.coin_sign = arcade.Sprite('images/coin.png', center_x=344, center_y=743, scale=1.5)
@@ -62,7 +62,7 @@ class Shop(arcade.View):
         self.background_color = arcade.color.TEA_GREEN
         self.batch = Batch()
 
-        self.exit_button = Button('images/button2.png', center_x=89, center_y=743, scale=0.5)
+        self.exit_button = Button('images/button_gray.png', center_x=89, center_y=743, scale=0.5)
         self.exit_text = arcade.Text('Назад', 89, 743, batch=self.batch, anchor_x='center', anchor_y='center',
                                      font_size=12, font_name='Press Start 2P')
 

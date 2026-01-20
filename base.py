@@ -90,9 +90,9 @@ class StartView(arcade.View):
                                                300, 100)
         self.free_game_color = arcade.color.WHITE
 
-        self.back_game_text = arcade.Text('', 125, 725, batch=self.batch, anchor_x='center', anchor_y='center',
+        self.back_game_text = arcade.Text('', 89, 743, batch=self.batch, anchor_x='center', anchor_y='center',
                                           font_size=12, font_name='Press Start 2P')
-        self.back_game_rect = arcade.rect.LBWH(25, self.window.height - 125, 200, 100)
+        self.back_game_rect = arcade.rect.LBWH(25, 711, 128, 64)
         self.back_game_color = arcade.color.WHITE
 
     def on_draw(self):
