@@ -18,7 +18,7 @@ class HotBar(arcade.SpriteList):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for i in range(4):
-            self.append(Cell('images/cell.png', 97 + 128 * i, 97, Backet(97 + 128 * i, 97)))
+            self.append(Cell('images/cell.png', 97 + 128 * i, 97))
         self.selected_cell_id = 0
         self.append(Cell('images/selected_cell.png', 97 + 128 * self.selected_cell_id, 97, scale=0.5))
         self.select(0)
