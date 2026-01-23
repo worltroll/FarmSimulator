@@ -13,12 +13,17 @@ class Cell(arcade.Sprite):
     def add_item(self, item):
         self.item = item
 
+    def draw(self):
+        arcade.draw_sprite(self.cell)
+        if self.item:
+            arcade.draw_sprite(self.item)
+
 
 class HotBar(arcade.SpriteList):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         for i in range(4):
-            self.append(Cell('images/cell.png', 97 + 128 * i, 97))
+            self.append(Cell('images/cell.png', 97 + 128 * i, 97, Backet(97 + 128 * i, 97)))
         self.selected_cell_id = 0
         self.append(Cell('images/selected_cell.png', 97 + 128 * self.selected_cell_id, 97, scale=0.5))
         self.select(0)
@@ -31,9 +36,7 @@ class HotBar(arcade.SpriteList):
 
     def draw(self):
         for cell in self:
-            arcade.draw_sprite(cell.cell)
-            if cell.item:
-                arcade.draw_sprite(cell.item)
+            cell.draw()
 
 
 class Field(arcade.SpriteList):
