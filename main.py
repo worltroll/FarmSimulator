@@ -1,7 +1,7 @@
 import arcade
 
 from db_manager import DBManager
-from base import Window, StartView
+from base import Window, StartView, Difficulty
 from game_base import Game, Shop
 
 
@@ -11,8 +11,7 @@ def main():
 
     arcade.load_font('fonts/PressStart2P-Regular.ttf')
 
-    game = Game()
-    game.setup()
+    game = Game(Difficulty.EASY)
 
     shop = Shop()
     shop.game_view = game

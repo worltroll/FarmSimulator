@@ -1,13 +1,16 @@
 from GUI import *
 from items import *
+from base import Difficulty
 
 import arcade
 from pyglet.graphics import Batch
 
 
 class Game(arcade.View):
-    def __init__(self):
+    def __init__(self, difficulty: Difficulty):
         super().__init__()
+
+        self.difficulty = difficulty
 
     def setup(self):
         self.background_color = arcade.color.TEA_GREEN

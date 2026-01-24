@@ -1,7 +1,16 @@
 import random
 import arcade
 
+from enum import Enum
+
 from pyglet.graphics import Batch
+
+
+class Difficulty(Enum):
+    EASY = 'easy'
+    ADVANCED = 'advanced'
+    HARD = 'hard'
+    FREE_GAME = 'free_game'
 
 
 class Window(arcade.Window):
@@ -34,20 +43,20 @@ class StartView(arcade.View):
         self.batch = Batch()
 
         for _ in range(self.TOMATO_COUNT):
-            tomato = arcade.Sprite(random.choice(self.SPRITES_PATHS), scale=2)
+            vegetable = arcade.Sprite(random.choice(self.SPRITES_PATHS), scale=0.5)
 
-            tomato.left = random.randint(0, int(self.window.width - tomato.width))
-            tomato.bottom = random.randint(0, int(self.window.height - tomato.height))
+            vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
+            vegetable.bottom = random.randint(0, int(self.window.height - vegetable.height))
 
-            tomato.speed_y = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
-            while abs(tomato.speed_y) < 15:
-                tomato.speed_y = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+            vegetable.speed_y = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+            while abs(vegetable.speed_y) < 15:
+                vegetable.speed_y = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
 
-            tomato.speed_x = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
-            while abs(tomato.speed_x) < 15:
-                tomato.speed_x = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+            vegetable.speed_x = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+            while abs(vegetable.speed_x) < 15:
+                vegetable.speed_x = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
 
-            self.vegetables.append(tomato)
+            self.vegetables.append(vegetable)
 
         self.button_texture = arcade.load_texture('images/button_green.png')
 
@@ -140,12 +149,14 @@ class StartView(arcade.View):
                 tomato.speed_y *= -1
                 tomato.top = self.height
 
-    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
+    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
         if self.start_game_rect.left <= x <= self.start_game_rect.right and \
                 self.start_game_rect.bottom <= y <= self.start_game_rect.top:
             if not self.level_select_mode:
                 self.level_select_mode = True
             else:
+                self.game_view.difficulty = Difficulty.EASY
+                self.game_view.setup()
                 self.window.show_view(self.game_view)
                 self.level_select_mode = False
 
@@ -154,6 +165,8 @@ class StartView(arcade.View):
             if not self.level_select_mode:
                 self.window.close()
             else:
+                self.game_view.difficulty = Difficulty.HARD
+                self.game_view.setup()
                 self.window.show_view(self.game_view)
                 self.level_select_mode = False
 
@@ -162,6 +175,8 @@ class StartView(arcade.View):
             if not self.level_select_mode:
                 print('ТИТРЫ')
             else:
+                self.game_view.difficulty = Difficulty.ADVANCED
+                self.game_view.setup()
                 self.window.show_view(self.game_view)
                 self.level_select_mode = False
 
@@ -170,6 +185,8 @@ class StartView(arcade.View):
             if not self.level_select_mode:
                 return
             else:
+                self.game_view.difficulty = Difficulty.FREE_GAME
+                self.game_view.setup()
                 self.window.show_view(self.game_view)
                 self.level_select_mode = False
 
