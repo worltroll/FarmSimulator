@@ -3,6 +3,8 @@ import arcade
 
 from enum import Enum
 
+from db_manager import DBManager
+
 from pyglet.graphics import Batch
 
 
@@ -225,3 +227,87 @@ class StartView(arcade.View):
             self.back_game_color = arcade.color.YELLOW_ORANGE
         else:
             self.back_game_color = arcade.color.WHITE
+
+
+class EndView(arcade.View):
+    MAX_SYMBOLS = 10
+
+    def __init__(self, db_manager: DBManager):
+        super().__init__()
+
+        self.db_manager = db_manager
+        arcade.set_background_color(arcade.color.TEA_GREEN)
+
+    def setup(self):
+        self.name_text_value = ''
+        self.show_leaderboard = False
+        self.everything = arcade.SpriteList()
+        self.batch = Batch()
+
+        self.text_field = arcade.Sprite('images/text_field.png')
+        self.text_field.center_x = self.window.width / 2
+        self.text_field.center_y = self.window.height / 2 + 100
+        self.text_field.scale_x = 1.5
+        self.text_field.scale_y = 0.8
+        self.everything.append(self.text_field)
+
+        self.name_text = arcade.Text(self.name_text_value,
+                                     self.window.width / 2,
+                                     self.window.height / 2 + 100,
+                                     anchor_x='center',
+                                     anchor_y='center',
+                                     font_size=17,
+                                     font_name='Press Start 2P',
+                                     color=arcade.color.BLACK_OLIVE,
+                                     batch=self.batch)
+
+        self.instruction_text_holder = arcade.Sprite('images/button_gray.png')
+        self.instruction_text_holder.center_x = self.window.width / 2
+        self.instruction_text_holder.center_y = self.window.height / 2 - 100
+        self.instruction_text_holder.scale_y = 1.5
+        self.instruction_text_holder.scale_x = 1.8
+        self.everything.append(self.instruction_text_holder)
+
+        self.instruction_text = arcade.Text('Введите своё имя, затем перейдите к доске лидеров нажав ENTER',
+                                            self.window.width / 2,
+                                            self.window.height / 2 - 100,
+                                            width=self.window.width / 3 * 2,
+                                            anchor_x='center',
+                                            anchor_y='center',
+                                            font_size=17,
+                                            font_name='Press Start 2P',
+                                            multiline=True,
+                                            batch=self.batch)
+
+    def on_draw(self) -> bool | None:
+        self.clear()
+        if not self.show_leaderboard:
+            self.everything.draw()
+            self.batch.draw()
+
+    def on_update(self, delta_time: float) -> bool | None:
+        self.name_text.text = self.name_text_value
+
+    def on_key_press(self, symbol: int, modifiers: int) -> bool | None:
+        if len(self.name_text_value) <= self.MAX_SYMBOLS:
+            if arcade.key.A <= symbol <= arcade.key.Z and not self.show_leaderboard:
+                if not modifiers & arcade.key.MOD_SHIFT:
+                    self.name_text_value += chr(symbol).lower()
+                else:
+                    self.name_text_value += chr(symbol).upper()
+
+            elif symbol == arcade.key.SPACE:
+                self.name_text_value += ' '
+
+            elif arcade.key.KEY_0 <= symbol <= arcade.key.KEY_9:
+                alternate_nums = '!@#$%^&*()'
+                if not modifiers & arcade.key.MOD_SHIFT:
+                    self.name_text_value += str(symbol - arcade.key.KEY_0)
+                else:
+                    self.name_text_value += alternate_nums[symbol - arcade.key.KEY_1]
+
+        if symbol == arcade.key.BACKSPACE and self.name_text_value:
+            self.name_text_value = self.name_text_value[:-1]
+
+        if symbol == arcade.key.ENTER and self.name_text_value:
+            self.show_leaderboard = True
