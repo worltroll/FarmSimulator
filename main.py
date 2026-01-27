@@ -26,7 +26,7 @@ def main():
     game.start_view = start_view
     game.shop_view = shop
 
-    window.show_view(end_view)
+    window.show_view(start_view)
     arcade.run()
 
 

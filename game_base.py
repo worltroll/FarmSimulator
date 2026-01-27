@@ -67,52 +67,34 @@ class Shop(arcade.View):
         self.batch = Batch()
 
         self.backet_cell = Cell('images/cell.png', 89, 622, item=Backet(89, 622))
-        self.backet_text1 = arcade.Text('Ведро', 89, 510, batch=self.batch, anchor_x='center', anchor_y='center',
-                                        font_size=12, font_name='Press Start 2P')
-        self.backet_text2 = arcade.Text('с водой,', 89, 495, batch=self.batch, anchor_x='center', anchor_y='center',
-                                        font_size=12, font_name='Press Start 2P')
-        self.backet_text3 = arcade.Text('нужно', 89, 480, batch=self.batch, anchor_x='center', anchor_y='center',
-                                        font_size=12, font_name='Press Start 2P')
-        self.backet_text4 = arcade.Text('для полива', 89, 465, batch=self.batch, anchor_x='center', anchor_y='center',
-                                        font_size=12, font_name='Press Start 2P')
-        self.backet_text5 = arcade.Text('растений', 89, 450, batch=self.batch, anchor_x='center', anchor_y='center',
-                                        font_size=12, font_name='Press Start 2P')
+        self.backet_text1 = arcade.Text('Ведро с водой, нужно для полива растений', 89, 490, batch=self.batch,
+                                        anchor_x='center', anchor_y='center', font_size=12, font_name='Press Start 2P',
+                                        width=128, multiline=True)
 
         self.money_cell = Cell('images/cell.png', 281, 622, item=None)
-        self.money_text1 = arcade.Text('Улучшение', 281, 510, batch=self.batch, anchor_x='center', anchor_y='center',
-                                       font_size=12, font_name='Press Start 2P')
-        self.money_text2 = arcade.Text('+10%', 281, 495, batch=self.batch, anchor_x='center', anchor_y='center',
-                                       font_size=12, font_name='Press Start 2P')
-        self.money_text3 = arcade.Text('к прибыли', 281, 480, batch=self.batch, anchor_x='center', anchor_y='center',
-                                       font_size=12, font_name='Press Start 2P')
+        self.money_text1 = arcade.Text('Улучшение +10% к прибыли', 281, 510, batch=self.batch, anchor_x='center',
+                                       anchor_y='center', font_size=12, font_name='Press Start 2P', width=128,
+                                       multiline=True)
 
         self.speed_cell = Cell('images/cell.png', 473, 622, item=None)
-        self.speed_text1 = arcade.Text('Улучшение', 473, 510, batch=self.batch, anchor_x='center', anchor_y='center',
-                                       font_size=12, font_name='Press Start 2P')
-        self.speed_text2 = arcade.Text('+10%', 473, 495, batch=self.batch, anchor_x='center', anchor_y='center',
-                                       font_size=12, font_name='Press Start 2P')
-        self.speed_text3 = arcade.Text('к росту', 473, 480, batch=self.batch, anchor_x='center', anchor_y='center',
-                                       font_size=12, font_name='Press Start 2P')
-        self.speed_text4 = arcade.Text('овощей', 473, 465, batch=self.batch, anchor_x='center', anchor_y='center',
-                                       font_size=12, font_name='Press Start 2P')
+        self.speed_text1 = arcade.Text('Улучшение +10% к росту овощей', 473, 510, batch=self.batch, anchor_x='center',
+                                       anchor_y='center', font_size=12, font_name='Press Start 2P', width=128,
+                                       multiline=True)
 
         self.packet_potato_cell = Cell('images/cell.png', 89, 267, item=PacketPotato(89, 267))
-        self.packet_potato_text1 = arcade.Text('Семена', 89, 155, batch=self.batch, anchor_x='center',
-                                               anchor_y='center', font_size=12, font_name='Press Start 2P')
-        self.packet_potato_text2 = arcade.Text('картофеля', 89, 140, batch=self.batch, anchor_x='center',
-                                               anchor_y='center', font_size=12, font_name='Press Start 2P')
+        self.packet_potato_text = arcade.Text('Семена картофеля', 89, 155, batch=self.batch, anchor_x='center',
+                                              anchor_y='center', font_size=12, font_name='Press Start 2P', width=128,
+                                              multiline=True)
 
         self.packet_carrot_cell = Cell('images/cell.png', 281, 267, item=PacketCarrot(281, 267))
-        self.packet_carrot_text1 = arcade.Text('Семена', 281, 155, batch=self.batch, anchor_x='center',
-                                               anchor_y='center', font_size=12, font_name='Press Start 2P')
-        self.packet_carrot_text2 = arcade.Text('моркови', 281, 140, batch=self.batch, anchor_x='center',
-                                               anchor_y='center', font_size=12, font_name='Press Start 2P')
+        self.packet_carrot_text = arcade.Text('Семена моркови', 281, 155, batch=self.batch, anchor_x='center',
+                                              anchor_y='center', font_size=12, font_name='Press Start 2P', width=128,
+                                              multiline=True)
 
         self.packet_beet_cell = Cell('images/cell.png', 473, 267, item=PacketBeet(473, 267))
-        self.packet_beet_text1 = arcade.Text('Семена', 473, 155, batch=self.batch, anchor_x='center',
-                                               anchor_y='center', font_size=12, font_name='Press Start 2P')
-        self.packet_beet_text2 = arcade.Text('свеклы', 473, 140, batch=self.batch, anchor_x='center',
-                                               anchor_y='center', font_size=12, font_name='Press Start 2P')
+        self.packet_beet_text = arcade.Text('Семена свеклы', 473, 155, batch=self.batch, anchor_x='center',
+                                            anchor_y='center', font_size=12, font_name='Press Start 2P', width=128,
+                                            multiline=True)
 
         self.exit_button = Button('images/button_gray.png', center_x=89, center_y=743, scale=0.5)
         self.exit_text = arcade.Text('Назад', 89, 743, batch=self.batch, anchor_x='center', anchor_y='center',
