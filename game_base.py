@@ -11,6 +11,7 @@ class Game(arcade.View):
         super().__init__()
 
         self.difficulty = default_difficulty
+        self.score = 0
 
     def setup(self):
         self.pause_flag = False
@@ -78,6 +79,7 @@ class Game(arcade.View):
 
         if self.exit_button.left <= x <= self.exit_button.right and \
                 self.exit_button.bottom <= y <= self.exit_button.top:
+            self.end_view.score = self.score
             self.window.show_view(self.end_view)
         if self.return_button.left <= x <= self.return_button.right and \
                 self.return_button.bottom <= y <= self.return_button.top:

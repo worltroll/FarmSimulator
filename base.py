@@ -242,7 +242,28 @@ class EndView(arcade.View):
         self.name_text_value = ''
         self.show_leaderboard = False
         self.everything = arcade.SpriteList()
+        self.leaderboard_list = arcade.SpriteList()
         self.batch = Batch()
+        self.leaderboard_batch = Batch()
+
+        self.leaderboard = arcade.Sprite('images/cell.png')
+        self.leaderboard.center_x = self.window.width / 2
+        self.leaderboard.center_y = self.window.height / 2
+        self.leaderboard.scale_x = 4
+        self.leaderboard.scale_y = 5
+        self.leaderboard_list.append(self.leaderboard)
+
+        self.leaderboard_text = arcade.Text('',
+                                            self.window.width / 2,
+                                            self.window.height - 150,
+                                            width=self.window.width / 3 * 2,
+                                            anchor_x='center',
+                                            anchor_y='top',
+                                            font_size=17,
+                                            font_name='Press Start 2P',
+                                            color=arcade.color.WHITE_SMOKE,
+                                            batch=self.leaderboard_batch,
+                                            multiline=True)
 
         self.text_field = arcade.Sprite('images/text_field.png')
         self.text_field.center_x = self.window.width / 2
@@ -284,6 +305,9 @@ class EndView(arcade.View):
         if not self.show_leaderboard:
             self.everything.draw()
             self.batch.draw()
+        else:
+            self.leaderboard_list.draw()
+            self.leaderboard_batch.draw()
 
     def on_update(self, delta_time: float) -> bool | None:
         self.name_text.text = self.name_text_value
@@ -311,3 +335,9 @@ class EndView(arcade.View):
 
         if symbol == arcade.key.ENTER and self.name_text_value:
             self.show_leaderboard = True
+            self.db_manager.add_new_score(self.name_text_value, self.score)
+            self.leaderboard_values = self.db_manager.get_leaderboard()
+            text = ''
+            for i, (name, score) in enumerate(self.leaderboard_values):
+                text += f'{i + 1}.\t{name}{" " * (10 - len(name))}\t{score}\n'
+            self.leaderboard_text.text = text
