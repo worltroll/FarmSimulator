@@ -232,10 +232,11 @@ class StartView(arcade.View):
 class EndView(arcade.View):
     MAX_SYMBOLS = 10
 
-    def __init__(self, db_manager: DBManager):
+    def __init__(self, db_manager: DBManager, start_view: StartView):
         super().__init__()
 
         self.db_manager = db_manager
+        self.start_view = start_view
         arcade.set_background_color(arcade.color.TEA_GREEN)
 
     def setup(self):
@@ -243,15 +244,23 @@ class EndView(arcade.View):
         self.show_leaderboard = False
         self.everything = arcade.SpriteList()
         self.leaderboard_list = arcade.SpriteList()
+        self.button_list = arcade.SpriteList()
         self.batch = Batch()
         self.leaderboard_batch = Batch()
+        self.button_batch = Batch()
 
-        self.leaderboard = arcade.Sprite('images/cell.png')
-        self.leaderboard.center_x = self.window.width / 2
-        self.leaderboard.center_y = self.window.height / 2
-        self.leaderboard.scale_x = 4
-        self.leaderboard.scale_y = 5
-        self.leaderboard_list.append(self.leaderboard)
+        self.back_button = arcade.Sprite('images/button_gray.png', center_x=150, center_y=743)
+        self.back_button.scale_x = 0.8
+        self.back_button.scale_y = 0.5
+        self.back_text = arcade.Text('Главное меню', 150, 743, anchor_x='center', anchor_y='center',
+                                     font_size=12, font_name='Press Start 2P')
+        self.button_list.append(self.back_button)
+
+        self.texture = arcade.load_texture('images/cell.png')
+        self.rect = arcade.rect.XYWH(self.window.width / 2,
+                                     self.window.height / 2,
+                                     self.window.width / 8 * 7,
+                                     self.window.height - 150)
 
         self.leaderboard_text = arcade.Text('',
                                             self.window.width / 2,
@@ -302,11 +311,13 @@ class EndView(arcade.View):
 
     def on_draw(self) -> bool | None:
         self.clear()
+        self.button_list.draw()
+        self.back_text.draw()
         if not self.show_leaderboard:
             self.everything.draw()
             self.batch.draw()
         else:
-            self.leaderboard_list.draw()
+            arcade.draw_texture_rect(self.texture, self.rect)
             self.leaderboard_batch.draw()
 
     def on_update(self, delta_time: float) -> bool | None:
@@ -338,6 +349,13 @@ class EndView(arcade.View):
             self.db_manager.add_new_score(self.name_text_value, self.score)
             self.leaderboard_values = self.db_manager.get_leaderboard()
             text = ''
-            for i, (name, score) in enumerate(self.leaderboard_values):
-                text += f'{i + 1}.\t{name}{" " * (10 - len(name))}\t{score}\n'
+            for i, (name, score) in enumerate(self.leaderboard_values[:20]):
+                line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (10 - len(name))}{score}\n'
+                text += line
             self.leaderboard_text.text = text
+
+    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
+        if self.back_button in arcade.get_sprites_at_point((x, y), self.button_list):
+            self.window.show_view(self.start_view)
+            self.show_leaderboard = False
+            self.name_text_value = ''

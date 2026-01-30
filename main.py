@@ -20,7 +20,7 @@ def main():
     start_view = StartView(game)
     start_view.setup()
 
-    end_view = EndView(db)
+    end_view = EndView(db, start_view)
     end_view.setup()
 
     game.start_view = start_view
