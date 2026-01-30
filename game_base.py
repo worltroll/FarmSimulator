@@ -78,14 +78,14 @@ class Game(arcade.View):
             self.window.show_view(self.shop_view)
 
         if self.exit_button.left <= x <= self.exit_button.right and \
-                self.exit_button.bottom <= y <= self.exit_button.top:
+                self.exit_button.bottom <= y <= self.exit_button.top and self.pause_flag:
             self.end_view.score = self.score
             self.window.show_view(self.end_view)
         if self.return_button.left <= x <= self.return_button.right and \
-                self.return_button.bottom <= y <= self.return_button.top:
+                self.return_button.bottom <= y <= self.return_button.top and self.pause_flag:
             self.pause_flag = False
         if self.again_button.left <= x <= self.again_button.right and \
-                self.again_button.bottom <= y <= self.again_button.top:
+                self.again_button.bottom <= y <= self.again_button.top and self.pause_flag:
             self.setup()
 
 
