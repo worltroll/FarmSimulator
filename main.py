@@ -26,6 +26,7 @@ def main():
 
     end_view = EndView(db, start_view)
     end_view.setup()
+    start_view.end_view = end_view
 
     game.start_view = start_view
     game.shop_view = shop

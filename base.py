@@ -115,7 +115,7 @@ class StartView(arcade.View):
         self.start_game_text.text = 'Начать игру' if not self.level_select_mode else 'Легкий'
         self.close_game_text.text = 'Выйти' if not self.level_select_mode else 'Сложный'
         self.title_game_text.text = 'Титры' if not self.level_select_mode else 'Продвинутый'
-        self.free_game_text.text = '' if not self.level_select_mode else 'Свободная игра'
+        self.free_game_text.text = 'Таблица лидеров' if not self.level_select_mode else 'Свободная игра'
         self.back_game_text.text = '' if not self.level_select_mode else 'Назад'
 
         self.start_game_text.color = self.start_game_color
@@ -127,8 +127,9 @@ class StartView(arcade.View):
         arcade.draw_texture_rect(self.button_texture, self.start_game_rect)
         arcade.draw_texture_rect(self.button_texture, self.close_game_rect)
         arcade.draw_texture_rect(self.button_texture, self.title_game_rect)
+        arcade.draw_texture_rect(self.button_texture, self.free_game_rect)
+
         if self.level_select_mode:
-            arcade.draw_texture_rect(self.button_texture, self.free_game_rect)
             arcade.draw_texture_rect(self.button_texture, self.back_game_rect)
         self.batch.draw()
 
@@ -187,7 +188,8 @@ class StartView(arcade.View):
         if self.free_game_rect.left <= x <= self.free_game_rect.right and \
                 self.free_game_rect.bottom <= y <= self.free_game_rect.top:
             if not self.level_select_mode:
-                return
+                self.end_view.show_leaderboard = True
+                self.window.show_view(self.end_view)
             else:
                 self.game_view.difficulty = Difficulty.FREE_GAME
                 self.game_view.setup()
