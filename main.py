@@ -1,7 +1,7 @@
 import arcade
 
 from db_manager import DBManager
-from base import Window, StartView, EndView, Difficulty
+from base import Window, StartView, EndView, Difficulty, Titles
 from game_base import Game, Shop
 
 
@@ -19,6 +19,10 @@ def main():
 
     start_view = StartView(game)
     start_view.setup()
+
+    titles = Titles(start_view)
+    titles.setup()
+    start_view.titles = titles
 
     end_view = EndView(db, start_view)
     end_view.setup()

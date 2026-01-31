@@ -4,6 +4,8 @@ import arcade
 from enum import Enum
 
 from db_manager import DBManager
+from sound_manager import *
+from particle_manager import *
 
 from pyglet.graphics import Batch
 
@@ -162,22 +164,22 @@ class StartView(arcade.View):
                 self.window.show_view(self.game_view)
                 self.level_select_mode = False
 
+        if self.title_game_rect.left <= x <= self.title_game_rect.right and \
+                self.title_game_rect.bottom <= y <= self.title_game_rect.top:
+            if not self.level_select_mode:
+                self.window.show_view(self.titles)
+            else:
+                self.game_view.difficulty = Difficulty.ADVANCED
+                self.game_view.setup()
+                self.window.show_view(self.game_view)
+                self.level_select_mode = False
+
         if self.close_game_rect.left <= x <= self.close_game_rect.right and \
                 self.close_game_rect.bottom <= y <= self.close_game_rect.top:
             if not self.level_select_mode:
                 self.window.close()
             else:
                 self.game_view.difficulty = Difficulty.HARD
-                self.game_view.setup()
-                self.window.show_view(self.game_view)
-                self.level_select_mode = False
-
-        if self.title_game_rect.left <= x <= self.title_game_rect.right and \
-                self.title_game_rect.bottom <= y <= self.title_game_rect.top:
-            if not self.level_select_mode:
-                print('ТИТРЫ')
-            else:
-                self.game_view.difficulty = Difficulty.ADVANCED
                 self.game_view.setup()
                 self.window.show_view(self.game_view)
                 self.level_select_mode = False
@@ -247,7 +249,6 @@ class EndView(arcade.View):
         self.button_list = arcade.SpriteList()
         self.batch = Batch()
         self.leaderboard_batch = Batch()
-        self.button_batch = Batch()
 
         self.back_button = arcade.Sprite('images/button_gray.png', center_x=150, center_y=743)
         self.back_button.scale_x = 0.8
@@ -359,3 +360,81 @@ class EndView(arcade.View):
             self.window.show_view(self.start_view)
             self.show_leaderboard = False
             self.name_text_value = ''
+
+
+class Titles(arcade.View):
+    TITLES_SPEED = 60
+    MAX_SYMBOLS = 30
+
+    def __init__(self, start_view: StartView):
+        super().__init__()
+
+        self.start_view = start_view
+        self.emitters = []
+        arcade.set_background_color(arcade.color.TEA_GREEN)
+
+    def huge_boom(self, delta_time):
+        for i in range(10):
+            x, y =random.randint(0, self.window.width), random.randint(0, self.window.height)
+            self.emitters.append(make_explosion(x, y))
+            self.emitters.append(make_smoke_puff(x, y))
+
+
+    def setup(self):
+        self.y = self.height
+        self.batch = Batch()
+        self.button_list = arcade.SpriteList()
+
+        with open('titles.txt', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        self.texts = []
+        x, y = self.window.width / 2, self.window.height
+        for i, line in enumerate(lines):
+            if len(line) > self.MAX_SYMBOLS:
+                line = line[:self.MAX_SYMBOLS + 1]
+            self.text = arcade.Text(
+                line.strip(),
+                x, y + 40 * i,
+                anchor_x='center',
+                anchor_y='center',
+                batch=self.batch,
+                font_name='Press Start 2P',
+                font_size=12
+            )
+            self.texts.append(self.text)
+
+        self.back_button = arcade.Sprite('images/button_gray.png', center_x=89, center_y=743, scale=0.5)
+        self.back_text = arcade.Text('Назад', 89, 743, anchor_x='center', anchor_y='center',
+                                     font_size=12, font_name='Press Start 2P')
+        self.button_list.append(self.back_button)
+
+    def on_draw(self) -> bool | None:
+        self.clear()
+        self.batch.draw()
+        self.button_list.draw()
+        self.back_text.draw()
+        for e in self.emitters:
+            e.draw()
+
+    def on_update(self, delta_time: float) -> bool | None:
+        for text in self.texts:
+            text.y -= self.TITLES_SPEED * delta_time
+
+        emitters_copy = self.emitters.copy()
+        for e in emitters_copy:
+            e.update(delta_time)
+        for e in emitters_copy:
+            if e.can_reap():
+                self.emitters.remove(e)
+
+    def on_show_view(self) -> None:
+        self.player = SoundPlayer().bg_music_player()
+        arcade.schedule(self.huge_boom, 3)
+
+    def on_hide_view(self) -> None:
+        arcade.stop_sound(self.player)
+        arcade.unschedule(self.huge_boom)
+
+    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
+        if self.back_button in arcade.get_sprites_at_point((x, y), self.button_list):
+            self.window.show_view(self.start_view)
