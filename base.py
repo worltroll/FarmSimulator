@@ -388,7 +388,8 @@ class Titles(arcade.View):
         self.tomatoes_list = arcade.SpriteList()
 
         for i in range(10):
-            self.tomatoes_list.append(arcade.Sprite('images/tomato.png', scale=0.1, center_y=self.window.height, center_x=random.randint(0, self.window.width)))
+            self.tomatoes_list.append(arcade.Sprite('images/tomato.png', scale=0.1, center_y=self.window.height,
+                                                    center_x=random.randint(0, self.window.width)))
 
         for tomato in self.tomatoes_list:
             self.physic = arcade.PhysicsEngineSimple(tomato)

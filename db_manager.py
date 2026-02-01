@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class DBManager:
     def __init__(self):
         self.con = sqlite3.connect('databases/leaderboard.db')

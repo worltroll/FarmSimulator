@@ -16,10 +16,12 @@ def gravity_drag(p):
     p.change_x *= 0.92
     p.change_y *= 0.92
 
+
 def smoke_mutator(p):
     p.scale_x *= 1.02
     p.scale_y *= 1.02
     p.alpha = max(0, p.alpha - 2)
+
 
 def make_explosion(x, y, count=80):
     return Emitter(

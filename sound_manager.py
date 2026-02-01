@@ -1,5 +1,6 @@
 import arcade
 
+
 class SoundPlayer:
     def __init__(self):
         self.title_song = arcade.load_sound('sounds/cool_song.mp3')
