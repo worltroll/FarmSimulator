@@ -1,25 +1,24 @@
 import arcade
 
-from items import Backet
+from items import PacketPotato, Backet, Krest
 
 
 class Cell(arcade.Sprite):
     def __init__(self, path_or_texture, center_x, center_y, item=None, scale=1, **kwargs):
         super().__init__(**kwargs)
+        self.interaction_flag = True
         self.is_selected = False
         self.item = item
         self.cell = arcade.Sprite(path_or_texture, center_x=center_x, center_y=center_y, scale=scale)
-
-    def add_item(self, item):
-        self.item = item
 
     def draw(self):
         arcade.draw_sprite(self.cell)
         if self.item:
             arcade.draw_sprite(self.item)
 
-    def update(self, delta_time: float = 1 / 60, *args, **kwargs) -> None:
-        pass
+    def disinteraction(self):
+        self.interaction_flag = False
+        self.item = Krest(self.cell.center_x, self.cell.center_y)
 
 
 class HotBar(arcade.SpriteList):
@@ -30,6 +29,9 @@ class HotBar(arcade.SpriteList):
         self.selected_cell_id = 0
         self.append(Cell('images/selected_cell.png', 97 + 128 * self.selected_cell_id, 97, scale=0.5))
         self.select(0)
+
+        self[0].item = PacketPotato(97, 97)
+        self[1].item = Backet(225, 97)
 
     def select(self, cell_id):
         self[self.selected_cell_id].is_selected = False
@@ -52,9 +54,7 @@ class Field(arcade.SpriteList):
 
     def draw(self):
         for cell in self:
-            arcade.draw_sprite(cell.cell)
-            if cell.item:
-                arcade.draw_sprite(cell.item)
+            cell.draw()
 
     def update(self, delta_time: float = 1 / 60, *args, **kwargs) -> None:
         for i in self:
