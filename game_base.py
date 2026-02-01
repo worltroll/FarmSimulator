@@ -11,9 +11,31 @@ class Game(arcade.View):
         super().__init__()
 
         self.difficulty = default_difficulty
-        self.score = 0
+
+    def interaction(self, delta_time):
+        self.interaction_flag = True
+        arcade.unschedule(self.interaction)
 
     def setup(self):
+        match self.difficulty:
+            case Difficulty.EASY:
+                self.speed = 1
+                self.krest_speed = 3
+            case Difficulty.ADVANCED:
+                self.speed = 2
+                self.krest_speed = 1
+            case Difficulty.HARD:
+                self.speed = 3
+                self.krest_speed = 0.5
+            case Difficulty.FREE_GAME:
+                self.speed = 1.5
+                self.krest_speed = 2
+
+        self.interaction_flag = False
+        arcade.schedule(self.interaction, 1)
+
+        self.money_k = 1
+        self.score = 0
         self.pause_flag = False
         self.background_color = arcade.color.TEA_GREEN
         self.batch = Batch()
@@ -22,7 +44,7 @@ class Game(arcade.View):
         self.field = Field()
         self.pause_button = Button('images/button_gray.png', center_x=89, center_y=743, scale=0.5)
         self.pause_text = arcade.Text('Пауза', 89, 743, batch=self.batch, anchor_x='center', anchor_y='center',
-                                     font_size=12, font_name='Press Start 2P')
+                                      font_size=12, font_name='Press Start 2P')
         self.shop_button = Button('images/button_gray.png', center_x=473, center_y=743, scale=0.5)
         self.shop_text = arcade.Text('Магазин', 473, 743, batch=self.batch, anchor_x='center', anchor_y='center',
                                      font_size=12, font_name='Press Start 2P')
@@ -33,14 +55,14 @@ class Game(arcade.View):
         self.pause_batch = Batch()
         self.exit_button = Button('images/button_gray.png', center_x=281, center_y=500, scale=0.7)
         self.exit_text = arcade.Text('Выйти', 281, 500, batch=self.pause_batch, anchor_x='center', anchor_y='center',
-                                      font_size=12, font_name='Press Start 2P')
+                                     font_size=12, font_name='Press Start 2P')
         self.return_button = Button('images/button_gray.png', center_x=281, center_y=400, scale=0.7)
-        self.return_text = arcade.Text('Вернуться', 281, 400, batch=self.pause_batch, anchor_x='center', anchor_y='center',
-                                      font_size=12, font_name='Press Start 2P')
+        self.return_text = arcade.Text('Вернуться', 281, 400, batch=self.pause_batch, anchor_x='center',
+                                       anchor_y='center',
+                                       font_size=12, font_name='Press Start 2P')
         self.again_button = Button('images/button_gray.png', center_x=281, center_y=300, scale=0.7)
         self.again_text = arcade.Text('Заново', 281, 300, batch=self.pause_batch, anchor_x='center', anchor_y='center',
-                                     font_size=12, font_name='Press Start 2P')
-
+                                      font_size=12, font_name='Press Start 2P')
 
     def on_draw(self):
         self.clear()
@@ -59,34 +81,74 @@ class Game(arcade.View):
             self.pause_batch.draw()
 
     def on_key_press(self, symbol, modifiers):
-        match symbol:
-            case arcade.key.KEY_1:
-                self.hotbar.select(0)
-            case arcade.key.KEY_2:
-                self.hotbar.select(1)
-            case arcade.key.KEY_3:
-                self.hotbar.select(2)
-            case arcade.key.KEY_4:
-                self.hotbar.select(3)
+        if self.interaction_flag:
+            if self.pause_flag and symbol == arcade.key.ESCAPE:
+                self.pause_flag = False
+            elif not self.pause_flag:
+                match symbol:
+                    case arcade.key.ESCAPE:
+                        self.pause_flag = True
+                    case arcade.key.KEY_1:
+                        self.hotbar.select(0)
+                    case arcade.key.KEY_2:
+                        self.hotbar.select(1)
+                    case arcade.key.KEY_3:
+                        self.hotbar.select(2)
+                    case arcade.key.KEY_4:
+                        self.hotbar.select(3)
 
-    def on_mouse_press(self, x, y, dx, dy):
-        if self.pause_button.left <= x <= self.pause_button.right and \
-                self.pause_button.bottom <= y <= self.pause_button.top:
-            self.pause_flag = True
-        if self.shop_button.left <= x <= self.shop_button.right and \
-                self.shop_button.bottom <= y <= self.shop_button.top:
-            self.window.show_view(self.shop_view)
+    def on_mouse_release(self, x, y, dx, dy):
+        if self.interaction_flag:
+            if self.exit_button.left <= x <= self.exit_button.right and \
+                    self.exit_button.bottom <= y <= self.exit_button.top and self.pause_flag:
+                self.end_view.score = self.score
+                self.window.show_view(self.end_view)
+            if self.return_button.left <= x <= self.return_button.right and \
+                    self.return_button.bottom <= y <= self.return_button.top and self.pause_flag:
+                self.pause_flag = False
+            if self.again_button.left <= x <= self.again_button.right and \
+                    self.again_button.bottom <= y <= self.again_button.top and self.pause_flag:
+                self.setup()
 
-        if self.exit_button.left <= x <= self.exit_button.right and \
-                self.exit_button.bottom <= y <= self.exit_button.top and self.pause_flag:
-            self.end_view.score = self.score
-            self.window.show_view(self.end_view)
-        if self.return_button.left <= x <= self.return_button.right and \
-                self.return_button.bottom <= y <= self.return_button.top and self.pause_flag:
-            self.pause_flag = False
-        if self.again_button.left <= x <= self.again_button.right and \
-                self.again_button.bottom <= y <= self.again_button.top and self.pause_flag:
-            self.setup()
+            if not self.pause_flag:
+                if self.pause_button.left <= x <= self.pause_button.right and \
+                        self.pause_button.bottom <= y <= self.pause_button.top:
+                    self.pause_flag = True
+                if self.shop_button.left <= x <= self.shop_button.right and \
+                        self.shop_button.bottom <= y <= self.shop_button.top:
+                    self.window.show_view(self.shop_view)
+
+                for i in self.field:
+                    if i.interaction_flag and i.cell.left <= x <= i.cell.right and i.cell.bottom <= y <= i.cell.top:
+                        if type(i.item) in (PacketPotato, PacketCarrot, PacketBeet) and type(
+                                self.hotbar[self.hotbar.selected_cell_id].item) is Backet:
+                            self.hotbar[self.hotbar.selected_cell_id].item = None
+                            i.item.water -= 1
+                            if i.item.water == 0:
+                                if type(i.item) == PacketPotato:
+                                    i.item = Potato(i.cell.center_x, i.cell.center_y)
+                                elif type(i.item) == PacketCarrot:
+                                    i.item = Carrot(i.cell.center_x, i.cell.center_y)
+                                elif type(i.item) == PacketBeet:
+                                    i.item = Beet(i.cell.center_x, i.cell.center_y)
+                            break
+                        elif type(i.item) in (Potato, Carrot, Beet):
+                            self.score += i.item.money * self.money_k
+                            i.item = None
+                            break
+                        elif not i.item and type(self.hotbar[self.hotbar.selected_cell_id].item) in (PacketPotato,
+                                                                                                     PacketCarrot,
+                                                                                                     PacketBeet):
+                            i.item = self.hotbar[self.hotbar.selected_cell_id].item
+                            i.item.center_x, i.item.center_y = i.cell.center_x, i.cell.center_y
+                            self.hotbar[self.hotbar.selected_cell_id].item = None
+
+    def on_update(self, delta_time):
+        self.coin_text.text = str(round(self.score))
+
+        for i in self.field:
+            if type(i.item) in (Potato, Carrot, Beet):
+                i.item.update_animation(delta_time, self.speed)
 
 
 class Shop(arcade.View):
@@ -102,13 +164,13 @@ class Shop(arcade.View):
                                        anchor_x='center', anchor_y='center', font_size=12, font_name='Press Start 2P',
                                        width=128, multiline=True)
 
-        self.money_cell = Cell('images/cell.png', 281, 622, item=None)
-        self.money_text = arcade.Text('Улучшение +10% к прибыли (1 монета)', 281, 510, batch=self.batch,
+        self.money_cell = Cell('images/cell.png', 281, 622, item=arcade.Sprite('images/money_up.png', 0.4, 281, 622))
+        self.money_text = arcade.Text('Улучшение: +10% к прибыли (5 монет)', 281, 510, batch=self.batch,
                                       anchor_x='center', anchor_y='center', font_size=12, font_name='Press Start 2P',
                                       width=128, multiline=True)
 
-        self.speed_cell = Cell('images/cell.png', 473, 622, item=None)
-        self.speed_text = arcade.Text('Улучшение +10% к росту овощей (1 монета)', 473, 510, batch=self.batch,
+        self.speed_cell = Cell('images/cell.png', 473, 622, item=arcade.Sprite('images/speed_up.png', 0.4, 473, 622))
+        self.speed_text = arcade.Text('Улучшение: на 10% быстрее рост овощей (5 монет)', 473, 500, batch=self.batch,
                                       anchor_x='center',
                                       anchor_y='center', font_size=12, font_name='Press Start 2P', width=128,
                                       multiline=True)
@@ -145,7 +207,42 @@ class Shop(arcade.View):
         arcade.draw_sprite(self.exit_button)
         self.batch.draw()
 
-    def on_mouse_press(self, x, y, dx, dy):
+    def on_mouse_release(self, x, y, dx, dy):
         if self.exit_button.left <= x <= self.exit_button.right and \
                 self.exit_button.bottom <= y <= self.exit_button.top:
             self.window.show_view(self.game_view)
+
+        if self.money_cell.cell.left <= x <= self.money_cell.cell.right and \
+                self.money_cell.cell.bottom <= y <= self.money_cell.cell.top and self.game_view.score >= 5:
+            self.game_view.score -= 5
+            self.game_view.money_k *= 1.1
+        elif self.speed_cell.cell.left <= x <= self.speed_cell.cell.right and \
+                self.speed_cell.cell.bottom <= y <= self.speed_cell.cell.top and self.game_view.score >= 5:
+            self.game_view.score -= 5
+            self.game_view.speed *= 0.9
+
+        for i in self.game_view.hotbar[:-1]:
+            if not i.item:
+                if self.backet_cell.cell.left <= x <= self.backet_cell.cell.right and \
+                        self.backet_cell.cell.bottom <= y <= self.backet_cell.cell.top and self.game_view.score >= 1:
+                    self.game_view.score -= 1
+                    i.item = Backet(i.cell.center_x, i.cell.center_y)
+                    break
+                elif self.packet_potato_cell.cell.left <= x <= self.packet_potato_cell.cell.right and \
+                        self.packet_potato_cell.cell.bottom <= y <= self.packet_potato_cell.cell.top and \
+                        self.game_view.score >= 1:
+                    self.game_view.score -= 1
+                    i.item = PacketPotato(i.cell.center_x, i.cell.center_y)
+                    break
+                elif self.packet_carrot_cell.cell.left <= x <= self.packet_carrot_cell.cell.right and \
+                        self.packet_carrot_cell.cell.bottom <= y <= self.packet_carrot_cell.cell.top and \
+                        self.game_view.score >= 2:
+                    self.game_view.score -= 2
+                    i.item = PacketCarrot(i.cell.center_x, i.cell.center_y)
+                    break
+                elif self.packet_beet_cell.cell.left <= x <= self.packet_beet_cell.cell.right and \
+                        self.packet_beet_cell.cell.bottom <= y <= self.packet_beet_cell.cell.top and \
+                        self.game_view.score >= 3:
+                    self.game_view.score -= 3
+                    i.item = PacketBeet(i.cell.center_x, i.cell.center_y)
+                    break
