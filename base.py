@@ -24,8 +24,8 @@ class Window(arcade.Window):
 
 
 class StartView(arcade.View):
-    TOMATO_COUNT = 10
-    TOMATO_SPEED = 100
+    VEGETABLE_COUNT = 5
+    VEGETABLE_SPEED = 100
 
     BUTTON_OFFSET = 10
     SPRITES_PATHS = [
@@ -39,6 +39,7 @@ class StartView(arcade.View):
 
         self.game_view = game_view
         self.level_select_mode = False
+        self.emitters = []
 
     def setup(self):
         self.background_color = arcade.color.TEA_GREEN
@@ -46,19 +47,24 @@ class StartView(arcade.View):
         self.vegetables = arcade.SpriteList()
         self.batch = Batch()
 
-        for _ in range(self.TOMATO_COUNT):
+        for _ in range(self.VEGETABLE_COUNT):
             vegetable = arcade.Sprite(random.choice(self.SPRITES_PATHS), scale=0.5)
 
-            vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
-            vegetable.bottom = random.randint(0, int(self.window.height - vegetable.height))
+            placed = False
+            while not placed:
+                vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
+                vegetable.bottom = random.randint(0, int(self.window.height - vegetable.height))
 
-            vegetable.speed_y = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+                if not arcade.check_for_collision_with_list(vegetable, self.vegetables):
+                    placed = True
+
+            vegetable.speed_y = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
             while abs(vegetable.speed_y) < 15:
-                vegetable.speed_y = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+                vegetable.speed_y = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
 
-            vegetable.speed_x = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+            vegetable.speed_x = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
             while abs(vegetable.speed_x) < 15:
-                vegetable.speed_x = random.randint(-self.TOMATO_SPEED, self.TOMATO_SPEED)
+                vegetable.speed_x = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
 
             self.vegetables.append(vegetable)
 
@@ -133,26 +139,47 @@ class StartView(arcade.View):
             arcade.draw_texture_rect(self.button_texture, self.back_game_rect)
         self.batch.draw()
 
+        for e in self.emitters:
+            e.draw()
+
     def on_update(self, delta_time: float):
-        for tomato in self.vegetables:
-            tomato.center_x += tomato.speed_x * delta_time
-            tomato.center_y += tomato.speed_y * delta_time
+        for vegetable in self.vegetables:
+            vegetable.center_x += vegetable.speed_x * delta_time
+            vegetable.center_y += vegetable.speed_y * delta_time
 
-            if tomato.left < 0:
-                tomato.speed_x *= -1
-                tomato.left = 0
+            if vegetable.left < 0:
+                vegetable.speed_x *= -1
+                vegetable.left = 0
 
-            if tomato.right > self.width:
-                tomato.speed_x *= -1
-                tomato.right = self.width
+            if vegetable.right > self.width:
+                vegetable.speed_x *= -1
+                vegetable.right = self.width
 
-            if tomato.bottom < 0:
-                tomato.speed_y *= -1
-                tomato.bottom = 0
+            if vegetable.bottom < 0:
+                vegetable.speed_y *= -1
+                vegetable.bottom = 0
 
-            if tomato.top > self.height:
-                tomato.speed_y *= -1
-                tomato.top = self.height
+            if vegetable.top > self.height:
+                vegetable.speed_y *= -1
+                vegetable.top = self.height
+
+            collided = arcade.check_for_collision_with_list(vegetable, self.vegetables)
+            try:
+                collided.remove(vegetable)
+            except Exception:
+                pass
+
+            if collided:
+                vegetable.speed_y *= -1
+                vegetable.speed_x *= -1
+                self.emitters.append(make_explosion(vegetable.center_x, vegetable.center_y))
+
+        emitters_copy = self.emitters.copy()
+        for e in emitters_copy:
+            e.update(delta_time)
+        for e in emitters_copy:
+            if e.can_reap():
+                self.emitters.remove(e)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
         if self.start_game_rect.left <= x <= self.start_game_rect.right and \
@@ -275,7 +302,6 @@ class EndView(arcade.View):
         self.advanced_button.center_x = self.window.width / 4 * 2
         self.advanced_button.bottom = 35
         self.leaderboard_list.append(self.advanced_button)
-
 
         self.hard_button = arcade.Sprite('images/button_brown.png', scale=0.5)
         self.hard_button.center_x = self.window.width / 4 * 3
