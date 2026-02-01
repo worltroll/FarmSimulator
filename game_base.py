@@ -31,6 +31,8 @@ class Game(arcade.View):
                 self.speed = 1.5
                 self.krest_speed = 2
 
+        self.end_view.difficulty = self.difficulty
+
         self.interaction_flag = False
         arcade.schedule(self.interaction, 1)
 

@@ -241,11 +241,18 @@ class EndView(arcade.View):
 
         self.db_manager = db_manager
         self.start_view = start_view
+        self.difficulty_to_table = {
+            Difficulty.EASY: 0,
+            Difficulty.ADVANCED: 1,
+            Difficulty.HARD: 2
+        }
         arcade.set_background_color(arcade.color.TEA_GREEN)
 
     def setup(self):
         self.name_text_value = ''
         self.show_leaderboard = False
+        self.difficulty = Difficulty.EASY
+        self.leaderboard_index = 0
         self.everything = arcade.SpriteList()
         self.leaderboard_list = arcade.SpriteList()
         self.button_list = arcade.SpriteList()
@@ -259,11 +266,62 @@ class EndView(arcade.View):
                                      font_size=12, font_name='Press Start 2P')
         self.button_list.append(self.back_button)
 
+        self.easy_button = arcade.Sprite('images/button_brown.png', scale=0.5)
+        self.easy_button.center_x = self.window.width / 4
+        self.easy_button.bottom = 35
+        self.leaderboard_list.append(self.easy_button)
+
+        self.advanced_button = arcade.Sprite('images/button_brown.png', scale=0.5)
+        self.advanced_button.center_x = self.window.width / 4 * 2
+        self.advanced_button.bottom = 35
+        self.leaderboard_list.append(self.advanced_button)
+
+
+        self.hard_button = arcade.Sprite('images/button_brown.png', scale=0.5)
+        self.hard_button.center_x = self.window.width / 4 * 3
+        self.hard_button.bottom = 35
+        self.leaderboard_list.append(self.hard_button)
+
+        self.easy_button_text = arcade.Text(
+            'Легко',
+            self.easy_button.center_x,
+            self.easy_button.center_y,
+            anchor_x='center',
+            anchor_y='center',
+            font_size=12,
+            font_name='Press Start 2P',
+            color=arcade.color.WHITE
+        )
+
+        self.advanced_button_text = arcade.Text(
+            'Средне',
+            self.advanced_button.center_x,
+            self.advanced_button.center_y,
+            anchor_x='center',
+            anchor_y='center',
+            font_size=12,
+            font_name='Press Start 2P',
+            color=arcade.color.WHITE
+        )
+
+        self.hard_button_text = arcade.Text(
+            'Сложно',
+            self.hard_button.center_x,
+            self.hard_button.center_y,
+            anchor_x='center',
+            anchor_y='center',
+            font_size=12,
+            font_name='Press Start 2P',
+            color=arcade.color.WHITE
+        )
+
         self.texture = arcade.load_texture('images/cell.png')
         self.rect = arcade.rect.XYWH(self.window.width / 2,
                                      self.window.height / 2,
                                      self.window.width / 8 * 7,
                                      self.window.height - 150)
+
+        self.leaderboard_values = self.db_manager.get_leaderboard(self.leaderboard_index)
 
         self.leaderboard_text = arcade.Text('',
                                             self.window.width / 2,
@@ -312,6 +370,14 @@ class EndView(arcade.View):
                                             multiline=True,
                                             batch=self.batch)
 
+        self.leaderboard_index = self.difficulty_to_table[self.difficulty]
+        self.leaderboard_values = self.db_manager.get_leaderboard(self.leaderboard_index)
+        text = ''
+        for i, (name, score) in enumerate(self.leaderboard_values[:20]):
+            line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
+            text += line
+        self.leaderboard_text.text = text
+
     def on_draw(self) -> bool | None:
         self.clear()
         self.button_list.draw()
@@ -322,6 +388,10 @@ class EndView(arcade.View):
         else:
             arcade.draw_texture_rect(self.texture, self.rect)
             self.leaderboard_batch.draw()
+            self.leaderboard_list.draw()
+            self.easy_button_text.draw()
+            self.advanced_button_text.draw()
+            self.hard_button_text.draw()
 
     def on_update(self, delta_time: float) -> bool | None:
         self.name_text.text = self.name_text_value
@@ -349,11 +419,12 @@ class EndView(arcade.View):
 
         if symbol == arcade.key.ENTER and self.name_text_value:
             self.show_leaderboard = True
-            self.db_manager.add_new_score(self.name_text_value, self.score)
-            self.leaderboard_values = self.db_manager.get_leaderboard()
+            self.leaderboard_index = self.difficulty_to_table[self.difficulty]
+            self.db_manager.add_new_score(self.leaderboard_index, self.name_text_value, self.score)
+            self.leaderboard_values = self.db_manager.get_leaderboard(self.leaderboard_index)
             text = ''
             for i, (name, score) in enumerate(self.leaderboard_values[:20]):
-                line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (10 - len(name))}{score}\n'
+                line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
                 text += line
             self.leaderboard_text.text = text
 
@@ -362,6 +433,21 @@ class EndView(arcade.View):
             self.window.show_view(self.start_view)
             self.show_leaderboard = False
             self.name_text_value = ''
+
+        if self.easy_button in arcade.get_sprites_at_point((x, y), self.leaderboard_list):
+            self.difficulty = Difficulty.EASY
+        elif self.advanced_button in arcade.get_sprites_at_point((x, y), self.leaderboard_list):
+            self.difficulty = Difficulty.ADVANCED
+        elif self.hard_button in arcade.get_sprites_at_point((x, y), self.leaderboard_list):
+            self.difficulty = Difficulty.HARD
+
+        self.leaderboard_index = self.difficulty_to_table[self.difficulty]
+        self.leaderboard_values = self.db_manager.get_leaderboard(self.leaderboard_index)
+        text = ''
+        for i, (name, score) in enumerate(self.leaderboard_values[:20]):
+            line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
+            text += line
+        self.leaderboard_text.text = text
 
 
 class Titles(arcade.View):
