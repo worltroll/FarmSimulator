@@ -29,9 +29,9 @@ class StartView(arcade.View):
 
     BUTTON_OFFSET = 10
     SPRITES_PATHS = [
-        'images/beet.png',
-        'images/carrot.png',
-        'images/potato.png'
+        'images/beet3.png',
+        'images/carrot3.png',
+        'images/potato3.png'
     ]
 
     def __init__(self, game_view):
