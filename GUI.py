@@ -16,9 +16,10 @@ class Cell(arcade.Sprite):
         if self.item:
             arcade.draw_sprite(self.item)
 
-    def disinteraction(self):
+    def disinteraction(self, delta_time):
         self.interaction_flag = False
         self.item = Krest(self.cell.center_x, self.cell.center_y)
+        arcade.unschedule(self.disinteraction)
 
 
 class HotBar(arcade.SpriteList):
@@ -50,7 +51,7 @@ class Field(arcade.SpriteList):
 
         for i in range(3):
             for j in range(3):
-                self.append(Cell('images/field_cell.png', 153 + 128 * j, 97 + 128 * (i + 1.7)))
+                self.append(Cell('images/field_cell.png', 153 + 128 * j, 97 + 128 * (i + 1.4)))
 
     def draw(self):
         for cell in self:
