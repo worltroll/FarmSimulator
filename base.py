@@ -373,19 +373,34 @@ class Titles(arcade.View):
 
         self.start_view = start_view
         self.emitters = []
+        self.physics = []
+
         arcade.set_background_color(arcade.color.TEA_GREEN)
 
     def huge_boom(self, delta_time):
         for i in range(10):
-            x, y =random.randint(0, self.window.width), random.randint(0, self.window.height)
+            x, y = random.randint(0, self.window.width), random.randint(0, self.window.height)
             self.emitters.append(make_explosion(x, y))
             self.emitters.append(make_smoke_puff(x, y))
 
+    def drop_tomatoes(self, delta_time):
+        self.physics = []
+        self.tomatoes_list = arcade.SpriteList()
+
+        for i in range(10):
+            self.tomatoes_list.append(arcade.Sprite('images/tomato.png', scale=0.1, center_y=self.window.height, center_x=random.randint(0, self.window.width)))
+
+        for tomato in self.tomatoes_list:
+            self.physic = arcade.PhysicsEngineSimple(tomato)
+            tomato.change_y = -5
+            self.physics.append(self.physic)
 
     def setup(self):
         self.y = self.height
         self.batch = Batch()
         self.button_list = arcade.SpriteList()
+
+        self.drop_tomatoes(0)
 
         with open('titles.txt', 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -412,6 +427,7 @@ class Titles(arcade.View):
 
     def on_draw(self) -> bool | None:
         self.clear()
+        self.tomatoes_list.draw()
         self.batch.draw()
         self.button_list.draw()
         self.back_text.draw()
@@ -419,6 +435,9 @@ class Titles(arcade.View):
             e.draw()
 
     def on_update(self, delta_time: float) -> bool | None:
+        for physic in self.physics:
+            physic.update()
+
         for text in self.texts:
             text.y -= self.TITLES_SPEED * delta_time
 
@@ -432,10 +451,12 @@ class Titles(arcade.View):
     def on_show_view(self) -> None:
         self.player = SoundPlayer().bg_music_player()
         arcade.schedule(self.huge_boom, 3)
+        arcade.schedule(self.drop_tomatoes, 5)
 
     def on_hide_view(self) -> None:
         arcade.stop_sound(self.player)
         arcade.unschedule(self.huge_boom)
+        arcade.unschedule(self.drop_tomatoes)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         if self.back_button in arcade.get_sprites_at_point((x, y), self.button_list):
