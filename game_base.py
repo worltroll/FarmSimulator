@@ -23,7 +23,6 @@ class Game(arcade.View):
                 'field': []}
 
         for i in self.hotbar:
-            match type(i):
             if type(i) is Backet:
                 data['hotbar'].append('backet')
             elif type(i) is Potato:
