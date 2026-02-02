@@ -16,3 +16,5 @@
     IDE PyCharm
     VCS Git
     Python
+
+Пояснительная записка
