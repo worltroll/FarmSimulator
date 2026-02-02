@@ -56,7 +56,7 @@ class StartView(arcade.View):
                 vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
                 vegetable.bottom = random.randint(0, int(self.window.height - vegetable.height))
 
-                safe_distance = vegetable.width + 30
+                safe_distance = vegetable.width * 2
                 for other in self.vegetables:
                     if arcade.get_distance_between_sprites(vegetable, other) < safe_distance:
                         break
@@ -66,7 +66,7 @@ class StartView(arcade.View):
 
             if attempts == max_attempts:
                 vegetable.center_x = self.window.width // 2
-                vegetable.center_y = self.window.height // 2 + len(self.vegetables) * 50
+                vegetable.center_y = self.window.height // 2 + len(self.vegetables) * 150
 
             vegetable.speed_y = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
             while abs(vegetable.speed_y) < 15:

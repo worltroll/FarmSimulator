@@ -54,7 +54,7 @@ class DBManager:
     def get_leaderboard(self, i):
         leaderboard = self.con.cursor().execute(f"""
         SELECT name, score FROM {self.tables[i]}
-        ORDER BY score DESC, name ASC""").fetchall()
+        ORDER BY score ASC, name ASC""").fetchall()
         return leaderboard
 
     def add_new_score(self, i, name: str, score: int):
