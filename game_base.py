@@ -1,3 +1,5 @@
+import json
+
 from GUI import *
 from items import *
 from base import Difficulty
@@ -12,21 +14,95 @@ class Game(arcade.View):
 
         self.difficulty = default_difficulty
 
+    def to_json(self):
+        data = {'score': self.score,
+                'total_time': self.total_time,
+                'money_k': self.money_k,
+                'speed': self.speed,
+                'hotbar': [],
+                'field': []}
+
+        for i in self.hotbar:
+            match type(i):
+            if type(i) is Backet:
+                data['hotbar'].append('backet')
+            elif type(i) is Potato:
+                data['hotbar'].append('potato')
+            elif type(i) is Carrot:
+                data['hotbar'].append('carrot')
+            elif type(i) is Beet:
+                data['hotbar'].append('beet')
+            else:
+                data['hotbar'].append('none')
+
+        for i in self.field:
+            if type(i) is Backet:
+                data['field'].append('backet')
+            elif type(i) is Potato:
+                data['field'].append('potato')
+            elif type(i) is Carrot:
+                data['field'].append('carrot')
+            elif type(i) is Beet:
+                data['field'].append('beet')
+            else:
+                data['field'].append('none')
+
+        with open('save.json', 'w', encoding='utf-8') as file:
+            json.dump(data, file)
+
+    def from_json(self):
+        with open('save.json', 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        self.score = data['score']
+        self.total_time = data['total_time']
+        self.money_k = data['money_k']
+        self.speed = data['speed']
+
+        for i, item in enumerate(data['hotbar']):
+            match item:
+                case 'backet':
+                    self.hotbar[i].item = Backet(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                case 'potato':
+                    self.hotbar[i].item = PacketPotato(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                case 'carrot':
+                    self.hotbar[i].item = PacketCarrot(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                case 'beet':
+                    self.hotbar[i].item = PacketBeet(self.hotbar[i].center_x, self.hotbar[i].center_y)
+
+        for i, item in enumerate(data['field']):
+            match item:
+                case 'backet':
+                    self.hotbar[i].item = Backet(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                case 'potato':
+                    self.hotbar[i].item = PacketPotato(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                case 'carrot':
+                    self.hotbar[i].item = PacketCarrot(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                case 'beet':
+                    self.hotbar[i].item = PacketBeet(self.hotbar[i].center_x, self.hotbar[i].center_y)
+
     def interaction(self, delta_time):
         self.interaction_flag = True
         arcade.unschedule(self.interaction)
+        arcade.schedule(self.update_time, 1)
+
+    def update_time(self, delta_time):
+        self.total_time += 1
 
     def setup(self):
+        arcade.unschedule(self.update_time)
         match self.difficulty:
             case Difficulty.EASY:
                 self.speed = 1
                 self.krest_speed = 3
+                self.need_money = 15
             case Difficulty.ADVANCED:
                 self.speed = 2
                 self.krest_speed = 1
+                self.need_money = 50
             case Difficulty.HARD:
                 self.speed = 3
                 self.krest_speed = 0.5
+                self.need_money = 100
             case Difficulty.FREE_GAME:
                 self.speed = 1.5
                 self.krest_speed = 2
@@ -37,10 +113,12 @@ class Game(arcade.View):
         arcade.schedule(self.interaction, 1)
 
         self.money_k = 1
+        self.total_time = 0
         self.score = 0
         self.pause_flag = False
         self.background_color = arcade.color.TEA_GREEN
         self.batch = Batch()
+        self.coin_batch = Batch()
 
         self.hotbar = HotBar()
         self.field = Field()
@@ -51,8 +129,12 @@ class Game(arcade.View):
         self.shop_text = arcade.Text('Магазин', 473, 743, batch=self.batch, anchor_x='center', anchor_y='center',
                                      font_size=12, font_name='Press Start 2P')
         self.coin_sign = arcade.Sprite('images/coin.png', center_x=344, center_y=743, scale=1.5)
-        self.coin_text = arcade.Text('0', 281, 743, batch=self.batch, anchor_x='center', anchor_y='center',
+        self.coin_text = arcade.Text('0', 281, 743, batch=self.coin_batch, anchor_x='center', anchor_y='center',
                                      font_size=20, font_name='Press Start 2P')
+
+        if self.need_money:
+            self.time_text = arcade.Text('Время: 0 с', 281, 660, batch=self.batch, anchor_x='center', anchor_y='center',
+                                         font_size=20, font_name='Press Start 2P')
 
         self.pause_batch = Batch()
         self.exit_button = Button('images/button_gray.png', center_x=281, center_y=500, scale=0.7)
@@ -75,6 +157,7 @@ class Game(arcade.View):
         arcade.draw_sprite(self.shop_button)
         arcade.draw_sprite(self.coin_sign)
         self.batch.draw()
+        self.coin_batch.draw()
 
         if self.pause_flag:
             arcade.draw_sprite(self.exit_button)
@@ -103,19 +186,22 @@ class Game(arcade.View):
         if self.interaction_flag:
             if self.exit_button.left <= x <= self.exit_button.right and \
                     self.exit_button.bottom <= y <= self.exit_button.top and self.pause_flag:
-                self.end_view.score = self.score
+                self.end_view.score = self.total_time
                 self.window.show_view(self.end_view)
             if self.return_button.left <= x <= self.return_button.right and \
                     self.return_button.bottom <= y <= self.return_button.top and self.pause_flag:
                 self.pause_flag = False
+                arcade.schedule(self.update_time, 1)
             if self.again_button.left <= x <= self.again_button.right and \
                     self.again_button.bottom <= y <= self.again_button.top and self.pause_flag:
+                self.interaction_flag = False
                 self.setup()
 
-            if not self.pause_flag:
+            if not self.pause_flag and self.interaction_flag:
                 if self.pause_button.left <= x <= self.pause_button.right and \
                         self.pause_button.bottom <= y <= self.pause_button.top:
                     self.pause_flag = True
+                    arcade.unschedule(self.update_time)
                 if self.shop_button.left <= x <= self.shop_button.right and \
                         self.shop_button.bottom <= y <= self.shop_button.top:
                     self.window.show_view(self.shop_view)
@@ -147,10 +233,16 @@ class Game(arcade.View):
 
     def on_update(self, delta_time):
         self.coin_text.text = str(round(self.score))
+        self.time_text.text = f'Время: {self.total_time} с'
 
         for i in self.field:
             if type(i.item) in (Potato, Carrot, Beet):
                 i.item.update_animation(delta_time, self.speed)
+                if i.item.index == 3:
+                    arcade.schedule(i.disinteraction, self.krest_speed)
+
+        if self.score >= self.need_money:
+            self.window.show_view(self.end_view)
 
 
 class Shop(arcade.View):
@@ -206,6 +298,9 @@ class Shop(arcade.View):
         self.packet_carrot_cell.draw()
         self.packet_beet_cell.draw()
 
+        arcade.draw_sprite(self.game_view.coin_sign)
+        self.game_view.coin_batch.draw()
+
         arcade.draw_sprite(self.exit_button)
         self.batch.draw()
 
@@ -248,3 +343,6 @@ class Shop(arcade.View):
                     self.game_view.score -= 3
                     i.item = PacketBeet(i.cell.center_x, i.cell.center_y)
                     break
+
+    def on_update(self, delta_time):
+        self.game_view.coin_text.text = str(round(self.game_view.score))
