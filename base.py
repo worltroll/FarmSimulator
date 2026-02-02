@@ -54,8 +54,12 @@ class StartView(arcade.View):
             while not placed:
                 vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
                 vegetable.bottom = random.randint(0, int(self.window.height - vegetable.height))
-
-                if not arcade.check_for_collision_with_list(vegetable, self.vegetables):
+                collision = arcade.check_for_collision_with_list(vegetable, self.vegetables)
+                try:
+                    collision.remove(vegetable)
+                except Exception:
+                    pass
+                if not collision:
                     placed = True
 
             vegetable.speed_y = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
