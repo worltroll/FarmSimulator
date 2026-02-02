@@ -49,18 +49,24 @@ class StartView(arcade.View):
 
         for _ in range(self.VEGETABLE_COUNT):
             vegetable = arcade.Sprite(random.choice(self.SPRITES_PATHS), scale=0.5)
+            attempts = 0
+            max_attempts = 100
 
-            placed = False
-            while not placed:
+            while attempts < max_attempts:
                 vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
                 vegetable.bottom = random.randint(0, int(self.window.height - vegetable.height))
-                collision = arcade.check_for_collision_with_list(vegetable, self.vegetables)
-                try:
-                    collision.remove(vegetable)
-                except Exception:
-                    pass
-                if not collision:
-                    placed = True
+
+                safe_distance = vegetable.width + 30
+                for other in self.vegetables:
+                    if arcade.get_distance_between_sprites(vegetable, other) < safe_distance:
+                        break
+                else:
+                    break
+                attempts += 1
+
+            if attempts == max_attempts:
+                vegetable.center_x = self.window.width // 2
+                vegetable.center_y = self.window.height // 2 + len(self.vegetables) * 50
 
             vegetable.speed_y = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
             while abs(vegetable.speed_y) < 15:
