@@ -530,6 +530,9 @@ class Titles(arcade.View):
         self.start_view = start_view
         self.emitters = []
         self.physics = []
+        self.camer = [281, 400]
+        self.camer_flag = False
+        self.camer_count = 10
 
         arcade.set_background_color(arcade.color.TEA_GREEN)
 
@@ -582,7 +585,18 @@ class Titles(arcade.View):
                                      font_size=12, font_name='Press Start 2P')
         self.button_list.append(self.back_button)
 
+        self.world_camera = arcade.camera.Camera2D()
+        self.camera_shake = arcade.camera.grips.ScreenShake2D(
+            self.world_camera.view_data,
+            max_amplitude=15.0,
+            acceleration_duration=0.1,
+            falloff_time=0.5,
+            shake_frequency=10.0,
+        )
+
     def on_draw(self) -> bool | None:
+        self.world_camera.use()
+
         self.clear()
         self.tomatoes_list.draw()
         self.batch.draw()
@@ -604,6 +618,25 @@ class Titles(arcade.View):
         for e in emitters_copy:
             if e.can_reap():
                 self.emitters.remove(e)
+
+        self.camera_shake.update(delta_time)
+        position = (
+            self.camer[0],
+            self.camer[1]
+        )
+        self.world_camera.position = arcade.math.lerp_2d(
+            self.world_camera.position,
+            position,
+            0.2
+        )
+        if self.camer_flag:
+            self.camer[1] += 10
+        else:
+            self.camer[1] -= 10
+        self.camer_count += 1
+        if self.camer_count >= 10:
+            self.camer_count = 0
+            self.camer_flag = not self.camer_flag
 
     def on_show_view(self) -> None:
         self.player = SoundPlayer().bg_music_player()
