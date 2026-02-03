@@ -250,7 +250,7 @@ class Game(arcade.View):
                             self.hotbar[self.hotbar.selected_cell_id].item = None
 
     def on_update(self, delta_time):
-        self.coin_text.text = str(round(self.score))
+        self.coin_text.text = f'{str(round(self.score))}{f"{'/' + str(self.need_money) if self.need_money else ''}"}'
         if self.need_money:
             self.time_text.text = f'Время: {self.total_time} с'
 
