@@ -1,6 +1,6 @@
 import arcade
 
-from items import PacketPotato, Backet, Krest
+from items import Krest
 
 
 class Cell(arcade.Sprite):

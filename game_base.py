@@ -1,10 +1,9 @@
 import json
 
-from pyglet.clock import unschedule
-
 from GUI import *
 from items import *
 from base import Difficulty
+from sound_manager import SoundPlayer
 
 import arcade
 from pyglet.graphics import Batch
@@ -204,7 +203,8 @@ class Game(arcade.View):
             if self.exit_button.left <= x <= self.exit_button.right and \
                     self.exit_button.bottom <= y <= self.exit_button.top and self.pause_flag:
                 self.window.show_view(self.start_view)
-                self.to_json()
+                if self.difficulty == Difficulty.FREE_GAME:
+                    self.to_json()
             if self.return_button.left <= x <= self.return_button.right and \
                     self.return_button.bottom <= y <= self.return_button.top and self.pause_flag:
                 self.pause_flag = False
@@ -240,7 +240,8 @@ class Game(arcade.View):
                         elif type(i.item) in (Potato, Carrot, Beet) and i.item.interaction_flag:
                             self.score += i.item.money * self.money_k
                             i.item = None
-                            unschedule(i.disinteraction)
+                            arcade.unschedule(i.disinteraction)
+                            SoundPlayer().coin_music()
                             break
                         elif not i.item and type(self.hotbar[self.hotbar.selected_cell_id].item) in (PacketPotato,
                                                                                                      PacketCarrot,
@@ -333,10 +334,12 @@ class Shop(arcade.View):
                 self.money_cell.cell.bottom <= y <= self.money_cell.cell.top and self.game_view.score >= 5:
             self.game_view.score -= 5
             self.game_view.money_k *= 1.1
+            SoundPlayer().upgrade_music()
         elif self.speed_cell.cell.left <= x <= self.speed_cell.cell.right and \
                 self.speed_cell.cell.bottom <= y <= self.speed_cell.cell.top and self.game_view.score >= 5:
             self.game_view.score -= 5
             self.game_view.speed *= 0.9
+            SoundPlayer().upgrade_music()
 
         for i in self.game_view.hotbar[:-1]:
             if not i.item:
@@ -344,24 +347,28 @@ class Shop(arcade.View):
                         self.backet_cell.cell.bottom <= y <= self.backet_cell.cell.top and self.game_view.score >= 1:
                     self.game_view.score -= 1
                     i.item = Backet(i.cell.center_x, i.cell.center_y)
+                    SoundPlayer().upgrade_music()
                     break
                 elif self.packet_potato_cell.cell.left <= x <= self.packet_potato_cell.cell.right and \
                         self.packet_potato_cell.cell.bottom <= y <= self.packet_potato_cell.cell.top and \
                         self.game_view.score >= 1:
                     self.game_view.score -= 1
                     i.item = PacketPotato(i.cell.center_x, i.cell.center_y)
+                    SoundPlayer().upgrade_music()
                     break
                 elif self.packet_carrot_cell.cell.left <= x <= self.packet_carrot_cell.cell.right and \
                         self.packet_carrot_cell.cell.bottom <= y <= self.packet_carrot_cell.cell.top and \
                         self.game_view.score >= 2:
                     self.game_view.score -= 2
                     i.item = PacketCarrot(i.cell.center_x, i.cell.center_y)
+                    SoundPlayer().upgrade_music()
                     break
                 elif self.packet_beet_cell.cell.left <= x <= self.packet_beet_cell.cell.right and \
                         self.packet_beet_cell.cell.bottom <= y <= self.packet_beet_cell.cell.top and \
                         self.game_view.score >= 3:
                     self.game_view.score -= 3
                     i.item = PacketBeet(i.cell.center_x, i.cell.center_y)
+                    SoundPlayer().upgrade_music()
                     break
 
     def on_update(self, delta_time):

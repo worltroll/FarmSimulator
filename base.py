@@ -651,3 +651,13 @@ class Titles(arcade.View):
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         if self.back_button in arcade.get_sprites_at_point((x, y), self.button_list):
             self.window.show_view(self.start_view)
+            self.camer = [281, 400]
+            position = (
+                self.camer[0],
+                self.camer[1]
+            )
+            self.world_camera.position = arcade.math.lerp_2d(
+                self.world_camera.position,
+                position,
+                1
+            )
