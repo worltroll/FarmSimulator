@@ -49,18 +49,24 @@ class StartView(arcade.View):
 
         for _ in range(self.VEGETABLE_COUNT):
             vegetable = arcade.Sprite(random.choice(self.SPRITES_PATHS), scale=0.5)
+            attempts = 0
+            max_attempts = 300
 
-            placed = False
-            while not placed:
+            while attempts < max_attempts:
                 vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
                 vegetable.bottom = random.randint(0, int(self.window.height - vegetable.height))
-                collision = arcade.check_for_collision_with_list(vegetable, self.vegetables)
-                try:
-                    collision.remove(vegetable)
-                except Exception:
-                    pass
-                if not collision:
-                    placed = True
+
+                safe_distance = vegetable.width * 2
+                for other in self.vegetables:
+                    if arcade.get_distance_between_sprites(vegetable, other) < safe_distance:
+                        break
+                else:
+                    break
+                attempts += 1
+
+            if attempts == max_attempts:
+                vegetable.center_x = self.window.width // 2
+                vegetable.center_y = self.window.height // 2 + len(self.vegetables) * 150
 
             vegetable.speed_y = random.randint(-self.VEGETABLE_SPEED, self.VEGETABLE_SPEED)
             while abs(vegetable.speed_y) < 15:
@@ -73,6 +79,15 @@ class StartView(arcade.View):
             self.vegetables.append(vegetable)
 
         self.button_texture = arcade.load_texture('images/button_green.png')
+
+        self.continue_game_text = arcade.Text('Продолжить игру', self.window.width / 2, self.window.height / 8 * 6 + self.BUTTON_OFFSET,
+                                           batch=self.batch,
+                                           anchor_x='center', anchor_y='center', font_size=12,
+                                           font_name='Press Start 2P')
+        self.continue_game_rect = arcade.rect.XYWH(self.window.width / 2,
+                                                self.window.height / 8 * 6 + self.BUTTON_OFFSET,
+                                                300, 100)
+        self.continue_game_color = arcade.color.WHITE
 
         self.start_game_text = arcade.Text('Начать игру', self.window.width / 2, self.window.height / 8 * 5,
                                            batch=self.batch,
@@ -118,16 +133,24 @@ class StartView(arcade.View):
         self.back_game_rect = arcade.rect.LBWH(25, 711, 128, 64)
         self.back_game_color = arcade.color.WHITE
 
+        try:
+            with open('save.json', 'r'):
+                self.is_saved = True
+        except Exception:
+            self.is_saved = False
+
     def on_draw(self):
         self.clear()
         self.vegetables.draw()
 
+        self.continue_game_text.text = 'Продолжить игру' if not self.level_select_mode and self.is_saved else ''
         self.start_game_text.text = 'Начать игру' if not self.level_select_mode else 'Легкий'
         self.close_game_text.text = 'Выйти' if not self.level_select_mode else 'Сложный'
         self.title_game_text.text = 'Титры' if not self.level_select_mode else 'Продвинутый'
         self.free_game_text.text = 'Таблица лидеров' if not self.level_select_mode else 'Свободная игра'
         self.back_game_text.text = '' if not self.level_select_mode else 'Назад'
 
+        self.continue_game_text.color = self.continue_game_color
         self.start_game_text.color = self.start_game_color
         self.close_game_text.color = self.close_game_color
         self.title_game_text.color = self.title_game_color
@@ -141,6 +164,8 @@ class StartView(arcade.View):
 
         if self.level_select_mode:
             arcade.draw_texture_rect(self.button_texture, self.back_game_rect)
+        elif self.is_saved:
+            arcade.draw_texture_rect(self.button_texture, self.continue_game_rect)
         self.batch.draw()
 
         for e in self.emitters:
@@ -186,6 +211,12 @@ class StartView(arcade.View):
                 self.emitters.remove(e)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int):
+        if self.continue_game_rect.left <= x <= self.continue_game_rect.right and \
+                self.continue_game_rect.bottom <= y <= self.continue_game_rect.top:
+            if not self.level_select_mode and self.is_saved:
+                self.window.show_view(self.game_view)
+                self.game_view.from_json()
+
         if self.start_game_rect.left <= x <= self.start_game_rect.right and \
                 self.start_game_rect.bottom <= y <= self.start_game_rect.top:
             if not self.level_select_mode:
@@ -233,6 +264,12 @@ class StartView(arcade.View):
                 self.level_select_mode = False
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
+        if self.continue_game_rect.left <= x <= self.continue_game_rect.right and \
+                self.continue_game_rect.bottom <= y <= self.continue_game_rect.top:
+            self.continue_game_color = arcade.color.YELLOW_ORANGE
+        else:
+            self.continue_game_color = arcade.color.WHITE
+
         if self.start_game_rect.left <= x <= self.start_game_rect.right and \
                 self.start_game_rect.bottom <= y <= self.start_game_rect.top:
             self.start_game_color = arcade.color.YELLOW_ORANGE
