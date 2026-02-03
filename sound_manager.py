@@ -14,3 +14,6 @@ class SoundPlayer:
 
     def upgrade_music(self):
         return arcade.load_sound('sounds/coin_pick_up.wav').play(volume=1)
+
+    def western(self):
+        return arcade.load_sound('sounds/western-2.mp3').play(loop=True, volume=1)

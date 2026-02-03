@@ -100,7 +100,13 @@ class Game(arcade.View):
     def update_time(self, delta_time):
         self.total_time += 1
 
+    def on_hide_view(self) -> None:
+        arcade.stop_sound(self.player)
+
     def setup(self):
+        self.player = SoundPlayer().western()
+
+
         arcade.unschedule(self.update_time)
         match self.difficulty:
             case Difficulty.EASY:
@@ -203,6 +209,7 @@ class Game(arcade.View):
             if self.exit_button.left <= x <= self.exit_button.right and \
                     self.exit_button.bottom <= y <= self.exit_button.top and self.pause_flag:
                 self.window.show_view(self.start_view)
+                self.on_hide_view()
                 if self.difficulty == Difficulty.FREE_GAME:
                     self.to_json()
             if self.return_button.left <= x <= self.return_button.right and \
