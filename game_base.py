@@ -19,6 +19,7 @@ class Game(arcade.View):
     def to_json(self):
         data = {'score': self.score,
                 'money_k': self.money_k,
+                'need_money': self.need_money,
                 'speed': self.speed,
                 'hotbar': [],
                 'field': []}
@@ -63,6 +64,7 @@ class Game(arcade.View):
             data = json.load(file)
         self.score = data['score']
         self.money_k = data['money_k']
+        self.need_money = data['need_money']
         self.speed = data['speed']
 
         for i, item in enumerate(data['hotbar']):
@@ -250,7 +252,7 @@ class Game(arcade.View):
                             self.hotbar[self.hotbar.selected_cell_id].item = None
 
     def on_update(self, delta_time):
-        self.coin_text.text = f'{str(round(self.score))}{f"{'/' + str(self.need_money) if self.need_money else ''}"}'
+        self.coin_text.text = f'{str(round(self.score))}{"/" + str(self.need_money) + "  " if self.need_money else ""}'
         if self.need_money:
             self.time_text.text = f'Время: {self.total_time} с'
 

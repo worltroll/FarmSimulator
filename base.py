@@ -50,7 +50,7 @@ class StartView(arcade.View):
         for _ in range(self.VEGETABLE_COUNT):
             vegetable = arcade.Sprite(random.choice(self.SPRITES_PATHS), scale=0.5)
             attempts = 0
-            max_attempts = 300
+            max_attempts = 1000
 
             while attempts < max_attempts:
                 vegetable.left = random.randint(0, int(self.window.width - vegetable.width))
@@ -444,7 +444,7 @@ class EndView(arcade.View):
         self.leaderboard_values = self.db_manager.get_leaderboard(self.leaderboard_index)
         text = ''
         for i, (name, score) in enumerate(self.leaderboard_values[:20]):
-            line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
+            line = f'{i + 1}.{" " * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
             text += line
         self.leaderboard_text.text = text
 
@@ -494,7 +494,7 @@ class EndView(arcade.View):
             self.leaderboard_values = self.db_manager.get_leaderboard(self.leaderboard_index)
             text = ''
             for i, (name, score) in enumerate(self.leaderboard_values[:20]):
-                line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
+                line = f"{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{' ' * (self.MAX_SYMBOLS - len(name))}{score}\n"
                 text += line
             self.leaderboard_text.text = text
 
@@ -515,7 +515,7 @@ class EndView(arcade.View):
         self.leaderboard_values = self.db_manager.get_leaderboard(self.leaderboard_index)
         text = ''
         for i, (name, score) in enumerate(self.leaderboard_values[:20]):
-            line = f'{i + 1}.{' ' * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
+            line = f'{i + 1}.{" " * (3 - len(str(i + 1)))}{name}{" " * (self.MAX_SYMBOLS - len(name))}{score}\n'
             text += line
         self.leaderboard_text.text = text
 
