@@ -16,7 +16,7 @@ class Cell(arcade.Sprite):
         if self.item:
             arcade.draw_sprite(self.item)
 
-    def disinteraction(self, delta_time):
+    def disinteraction(self, delta_time=1):
         self.interaction_flag = False
         self.item = Krest(self.cell.center_x, self.cell.center_y)
         arcade.unschedule(self.disinteraction)
@@ -30,9 +30,6 @@ class HotBar(arcade.SpriteList):
         self.selected_cell_id = 0
         self.append(Cell('images/selected_cell.png', 97 + 128 * self.selected_cell_id, 97, scale=0.5))
         self.select(0)
-
-        self[0].item = PacketPotato(97, 97)
-        self[1].item = Backet(225, 97)
 
     def select(self, cell_id):
         self[self.selected_cell_id].is_selected = False

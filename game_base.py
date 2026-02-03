@@ -1,5 +1,7 @@
 import json
 
+from pyglet.clock import unschedule
+
 from GUI import *
 from items import *
 from base import Difficulty
@@ -16,32 +18,37 @@ class Game(arcade.View):
 
     def to_json(self):
         data = {'score': self.score,
-                'total_time': self.total_time,
                 'money_k': self.money_k,
                 'speed': self.speed,
                 'hotbar': [],
                 'field': []}
 
-        for i in self.hotbar:
-            if type(i) is Backet:
+        for i in self.hotbar[:-1]:
+            if type(i.item) == Backet:
                 data['hotbar'].append('backet')
-            elif type(i) is Potato:
-                data['hotbar'].append('potato')
-            elif type(i) is Carrot:
-                data['hotbar'].append('carrot')
-            elif type(i) is Beet:
-                data['hotbar'].append('beet')
+            elif type(i.item) == PacketPotato:
+                data['hotbar'].append('packetPotato')
+            elif type(i.item) == PacketCarrot:
+                data['hotbar'].append('packetCarrot')
+            elif type(i.item) == PacketBeet:
+                data['hotbar'].append('packetBeet')
             else:
                 data['hotbar'].append('none')
 
         for i in self.field:
-            if type(i) is Backet:
-                data['field'].append('backet')
-            elif type(i) is Potato:
+            if not i.interaction_flag:
+                data['field'].append('krest')
+            elif type(i.item) == PacketPotato:
+                data['field'].append('packetPotato')
+            elif type(i.item) == PacketCarrot:
+                data['field'].append('packetCarrot')
+            elif type(i.item) == PacketBeet:
+                data['field'].append('packetBeet')
+            elif type(i.item) == Potato:
                 data['field'].append('potato')
-            elif type(i) is Carrot:
+            elif type(i.item) == Carrot:
                 data['field'].append('carrot')
-            elif type(i) is Beet:
+            elif type(i.item) == Beet:
                 data['field'].append('beet')
             else:
                 data['field'].append('none')
@@ -50,34 +57,41 @@ class Game(arcade.View):
             json.dump(data, file)
 
     def from_json(self):
+        self.hotbar = HotBar()
+
         with open('save.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
         self.score = data['score']
-        self.total_time = data['total_time']
         self.money_k = data['money_k']
         self.speed = data['speed']
 
         for i, item in enumerate(data['hotbar']):
             match item:
                 case 'backet':
-                    self.hotbar[i].item = Backet(self.hotbar[i].center_x, self.hotbar[i].center_y)
-                case 'potato':
-                    self.hotbar[i].item = PacketPotato(self.hotbar[i].center_x, self.hotbar[i].center_y)
-                case 'carrot':
-                    self.hotbar[i].item = PacketCarrot(self.hotbar[i].center_x, self.hotbar[i].center_y)
-                case 'beet':
-                    self.hotbar[i].item = PacketBeet(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                    self.hotbar[i].item = Backet(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
+                case 'packetPotato':
+                    self.hotbar[i].item = PacketPotato(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
+                case 'packetCarrot':
+                    self.hotbar[i].item = PacketCarrot(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
+                case 'packetBeet':
+                    self.hotbar[i].item = PacketBeet(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
 
         for i, item in enumerate(data['field']):
             match item:
-                case 'backet':
-                    self.hotbar[i].item = Backet(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                case 'packetPotato':
+                    self.field[i].item = PacketPotato(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
+                case 'packetCarrot':
+                    self.field[i].item = PacketCarrot(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
+                case 'packetBeet':
+                    self.field[i].item = PacketBeet(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
                 case 'potato':
-                    self.hotbar[i].item = PacketPotato(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                    self.field[i].item = Potato(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
                 case 'carrot':
-                    self.hotbar[i].item = PacketCarrot(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                    self.field[i].item = Carrot(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
                 case 'beet':
-                    self.hotbar[i].item = PacketBeet(self.hotbar[i].center_x, self.hotbar[i].center_y)
+                    self.field[i].item = Beet(self.hotbar[i].cell.center_x, self.hotbar[i].cell.center_y)
+                case 'krest':
+                    self.field[i].disinteraction()
 
     def interaction(self, delta_time):
         self.interaction_flag = True
@@ -105,6 +119,7 @@ class Game(arcade.View):
             case Difficulty.FREE_GAME:
                 self.speed = 1.5
                 self.krest_speed = 2
+                self.need_money = None
 
         self.end_view.difficulty = self.difficulty
 
@@ -120,6 +135,9 @@ class Game(arcade.View):
         self.coin_batch = Batch()
 
         self.hotbar = HotBar()
+        self.hotbar[0].item = PacketPotato(97, 97)
+        self.hotbar[1].item = Backet(225, 97)
+
         self.field = Field()
         self.pause_button = Button('images/button_gray.png', center_x=89, center_y=743, scale=0.5)
         self.pause_text = arcade.Text('Пауза', 89, 743, batch=self.batch, anchor_x='center', anchor_y='center',
@@ -185,8 +203,8 @@ class Game(arcade.View):
         if self.interaction_flag:
             if self.exit_button.left <= x <= self.exit_button.right and \
                     self.exit_button.bottom <= y <= self.exit_button.top and self.pause_flag:
-                self.end_view.score = self.total_time
-                self.window.show_view(self.end_view)
+                self.window.show_view(self.start_view)
+                self.to_json()
             if self.return_button.left <= x <= self.return_button.right and \
                     self.return_button.bottom <= y <= self.return_button.top and self.pause_flag:
                 self.pause_flag = False
@@ -219,9 +237,10 @@ class Game(arcade.View):
                                 elif type(i.item) == PacketBeet:
                                     i.item = Beet(i.cell.center_x, i.cell.center_y)
                             break
-                        elif type(i.item) in (Potato, Carrot, Beet):
+                        elif type(i.item) in (Potato, Carrot, Beet) and i.item.interaction_flag:
                             self.score += i.item.money * self.money_k
                             i.item = None
+                            unschedule(i.disinteraction)
                             break
                         elif not i.item and type(self.hotbar[self.hotbar.selected_cell_id].item) in (PacketPotato,
                                                                                                      PacketCarrot,
@@ -232,7 +251,8 @@ class Game(arcade.View):
 
     def on_update(self, delta_time):
         self.coin_text.text = str(round(self.score))
-        self.time_text.text = f'Время: {self.total_time} с'
+        if self.need_money:
+            self.time_text.text = f'Время: {self.total_time} с'
 
         for i in self.field:
             if type(i.item) in (Potato, Carrot, Beet):
@@ -240,7 +260,8 @@ class Game(arcade.View):
                 if i.item.index == 3:
                     arcade.schedule(i.disinteraction, self.krest_speed)
 
-        if self.score >= self.need_money:
+        if self.need_money and self.score >= self.need_money:
+            self.end_view.score = self.total_time
             self.window.show_view(self.end_view)
 
 

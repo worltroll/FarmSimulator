@@ -80,13 +80,14 @@ class StartView(arcade.View):
 
         self.button_texture = arcade.load_texture('images/button_green.png')
 
-        self.continue_game_text = arcade.Text('Продолжить игру', self.window.width / 2, self.window.height / 8 * 6 + self.BUTTON_OFFSET,
-                                           batch=self.batch,
-                                           anchor_x='center', anchor_y='center', font_size=12,
-                                           font_name='Press Start 2P')
+        self.continue_game_text = arcade.Text('Продолжить игру', self.window.width / 2,
+                                              self.window.height / 8 * 6 + self.BUTTON_OFFSET,
+                                              batch=self.batch,
+                                              anchor_x='center', anchor_y='center', font_size=12,
+                                              font_name='Press Start 2P')
         self.continue_game_rect = arcade.rect.XYWH(self.window.width / 2,
-                                                self.window.height / 8 * 6 + self.BUTTON_OFFSET,
-                                                300, 100)
+                                                   self.window.height / 8 * 6 + self.BUTTON_OFFSET,
+                                                   300, 100)
         self.continue_game_color = arcade.color.WHITE
 
         self.start_game_text = arcade.Text('Начать игру', self.window.width / 2, self.window.height / 8 * 5,
@@ -143,6 +144,9 @@ class StartView(arcade.View):
         self.clear()
         self.vegetables.draw()
 
+        for e in self.emitters:
+            e.draw()
+
         self.continue_game_text.text = 'Продолжить игру' if not self.level_select_mode and self.is_saved else ''
         self.start_game_text.text = 'Начать игру' if not self.level_select_mode else 'Легкий'
         self.close_game_text.text = 'Выйти' if not self.level_select_mode else 'Сложный'
@@ -167,9 +171,6 @@ class StartView(arcade.View):
         elif self.is_saved:
             arcade.draw_texture_rect(self.button_texture, self.continue_game_rect)
         self.batch.draw()
-
-        for e in self.emitters:
-            e.draw()
 
     def on_update(self, delta_time: float):
         for vegetable in self.vegetables:
@@ -215,6 +216,8 @@ class StartView(arcade.View):
                 self.continue_game_rect.bottom <= y <= self.continue_game_rect.top:
             if not self.level_select_mode and self.is_saved:
                 self.window.show_view(self.game_view)
+                self.game_view.difficulty = Difficulty.FREE_GAME
+                self.game_view.setup()
                 self.game_view.from_json()
 
         if self.start_game_rect.left <= x <= self.start_game_rect.right and \
