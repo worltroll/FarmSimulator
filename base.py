@@ -50,7 +50,7 @@ class StartView(arcade.View):
         for _ in range(self.VEGETABLE_COUNT):
             vegetable = arcade.Sprite(random.choice(self.SPRITES_PATHS), scale=0.5)
             attempts = 0
-            max_attempts = 1000
+            max_attempts = 10000
 
             while attempts < max_attempts:
                 vegetable.left = random.randint(0, int(self.window.width - vegetable.width))

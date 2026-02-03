@@ -19,7 +19,6 @@ class Game(arcade.View):
     def to_json(self):
         data = {'score': self.score,
                 'money_k': self.money_k,
-                'need_money': self.need_money,
                 'speed': self.speed,
                 'hotbar': [],
                 'field': []}
@@ -64,7 +63,6 @@ class Game(arcade.View):
             data = json.load(file)
         self.score = data['score']
         self.money_k = data['money_k']
-        self.need_money = data['need_money']
         self.speed = data['speed']
 
         for i, item in enumerate(data['hotbar']):
