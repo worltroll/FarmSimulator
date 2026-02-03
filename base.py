@@ -634,7 +634,7 @@ class Titles(arcade.View):
         else:
             self.camer[1] -= 10
         self.camer_count += 1
-        if self.camer_count >= 10:
+        if self.camer_count >= 20:
             self.camer_count = 0
             self.camer_flag = not self.camer_flag
 
