@@ -3,7 +3,7 @@ import sqlite3
 
 class DBManager:
     def __init__(self):
-        self.con = sqlite3.connect('databases/leaderboard.db')
+        self.con = sqlite3.connect('leaderboard.db')
         self.cur = self.con.cursor()
         self.init_db()
         self.tables = {

@@ -6,7 +6,7 @@ from game_base import Game, Shop
 
 
 def main():
-    window = Window(562, 800, 'Симулятор фермы')
+    window = Window(562, 800, 'Farm Cells')
     db = DBManager()
 
     arcade.load_font('fonts/PressStart2P-Regular.ttf')
